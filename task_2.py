@@ -22,7 +22,7 @@ def driver():
 
 
 def test(driver):
-    url = "https://test-online.sbis.ru/"
+    url = "https://fix-online.sbis.ru/"
     driver.maximize_window()
     wait = WebDriverWait(driver, 20)
     action = ActionChains(driver)
@@ -31,54 +31,51 @@ def test(driver):
     wait.until(EC.visibility_of_element_located((By.CSS_SELECTOR, '.controls-Render__placeholder')))
 
     login, password = driver.find_elements(By.CSS_SELECTOR, '.controls-Field')
-    login.send_keys("Демо_тензор", Keys.ENTER)
-    password.send_keys("Демо123", Keys.ENTER)
+    login.send_keys("sync_test_auto_1", Keys.ENTER)
+    password.send_keys("Авто123", Keys.ENTER)
 
-    wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, '[data-qa="NavigationPanels-Accordion__title"]')))
-    sleep(2)
+    wait.until(EC.visibility_of_all_elements_located((By.CSS_SELECTOR, '.highcharts-series.highcharts-tracker')))
     contacts = driver.find_elements(By.CSS_SELECTOR, '[data-qa="NavigationPanels-Accordion__title"]')
     action.double_click(contacts[0])
     action.perform()
 
-    wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR, '.controls-padding_left-m.tw-w-full.msg-person-tile-new')))
+    wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, '[data-qa="sabyPage-addButton"]')))
 
-    contact = driver.find_element(By.CSS_SELECTOR, '.controls-padding_left-m.tw-w-full.msg-person-tile-new')
-    action.context_click(contact)
-    action.perform()
+    ms1 = int(driver.find_element(By.CSS_SELECTOR, '[data-qa="msg-folders-counter_unread"').text)
 
-    wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR, '.controls-Menu__content.controls-Menu__content_align_right')))
-    message = driver.find_element(By.CSS_SELECTOR, '.controls-Menu__content.controls-Menu__content_align_right')
+    new_message = driver.find_element(By.CSS_SELECTOR, '[data-qa="sabyPage-addButton"]')
+    new_message.click()
 
-    message.click()
+    wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, '.controls-StackTemplate__content-area [data-qa="FilterView__icon"]')))
+    serch = driver.find_element(By.CSS_SELECTOR, '.controls-Field')
+    serch.send_keys("Розница1 Автотестер Продавец")
 
-    wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR, '.textEditor_Viewer__Paragraph')))
-    text_fild = driver.find_element(By.CSS_SELECTOR, ".textEditor_Viewer__Paragraph")
-    text_fild.send_keys("message")
+    wait.until(EC.visibility_of_element_located((By.CSS_SELECTOR, '.controls-BaseControl .ws-flexbox.person-BaseInfo__content')))
+    contact = driver.find_element(By.CSS_SELECTOR, '.controls-BaseControl .ws-flexbox.person-BaseInfo__content')
+    contact.click()
 
-    send = driver.find_element(By.CSS_SELECTOR, '[data-qa="msg-send-editor__send-button"]')
+    wait.until(EC.visibility_of_element_located((By.CSS_SELECTOR, '[data-qa="textEditor_slate_Field"]')))
+    fild = driver.find_element(By.CSS_SELECTOR, '[data-qa="textEditor_slate_Field"]')
+    fild.send_keys("message")
+
     wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, '[data-qa="msg-send-editor__send-button"]')))
+    send = driver.find_element(By.CSS_SELECTOR, '[data-qa="msg-send-editor__send-button"]')
     action.click(send)
     action.perform()
 
-    wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, '.msg-entity-layout__message-content')))
-    text = driver.find_element(By.CSS_SELECTOR, '.msg-entity-layout__message-content')
-    assert text.is_displayed()
     sleep(1)
-    action.context_click(text)
+    ms2 = int(driver.find_element(By.CSS_SELECTOR, '[data-qa="msg-folders-counter_unread"').text)
+    assert ms2 > ms1
+
+    ms = driver.find_elements(By.CSS_SELECTOR, '[data-qa="items-container"] [data-qa="item"]')
+    action.context_click(ms[1])
     action.perform()
 
     wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, '.controls-Menu__content-wrapper_width')))
-    delete = driver.find_elements(By.CSS_SELECTOR, ".controls-Menu__content-wrapper_width")[-1]
-    sleep(1)
-    delete.click()
+    delete = driver.find_elements(By.CSS_SELECTOR, ".controls-Menu__content-wrapper_width")
+    delete[-1].click()
 
-    wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR, '.controls-Button__text_viewMode-outlined')))
-    yes = driver.find_elements(By.CSS_SELECTOR, ".controls-Button__text_viewMode-outlined")[0]
     sleep(1)
-    yes.click()
-
-    wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR, '[data-qa="controls-ConfirmationTemplate__main"]')))
-    check = driver.find_element(By.CSS_SELECTOR, '[data-qa="controls-ConfirmationTemplate__main"]')
-    assert check.is_displayed()
-    sleep(1)
+    ms3 = int(driver.find_element(By.CSS_SELECTOR, '[data-qa="msg-folders-counter_unread"').text)
+    assert ms3 == ms1
 
