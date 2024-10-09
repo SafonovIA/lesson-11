@@ -6,6 +6,8 @@
 # Для сдачи задания пришлите код и запись с экрана прохождения теста
 
 import pytest
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver import ActionChains, Keys
@@ -21,53 +23,62 @@ def driver():
 
 def test(driver):
     url = "https://test-online.sbis.ru/"
-    driver.get(url)
     driver.maximize_window()
-    sleep(2)
-    login, password = driver.find_elements(By.CSS_SELECTOR, '[name="ws-input_2024-10-08"]')
-
-    login.send_keys("Демо_тензор", Keys.ENTER)
-    password.send_keys("Демо123", Keys.ENTER)
-    sleep(10)
-
+    wait = WebDriverWait(driver, 20)
     action = ActionChains(driver)
 
-    c = driver.find_elements(By.CSS_SELECTOR, '[data-qa="NavigationPanels-Accordion__title"]')
+    driver.get(url)
+    wait.until(EC.visibility_of_element_located((By.CSS_SELECTOR, '.controls-Render__placeholder')))
 
-    action.move_to_element(c[0])
+    login, password = driver.find_elements(By.CSS_SELECTOR, '.controls-Field')
+    login.send_keys("Демо_тензор", Keys.ENTER)
+    password.send_keys("Демо123", Keys.ENTER)
+
+    wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, '[data-qa="NavigationPanels-Accordion__title"]')))
+    sleep(2)
+    contacts = driver.find_elements(By.CSS_SELECTOR, '[data-qa="NavigationPanels-Accordion__title"]')
+    action.double_click(contacts[0])
     action.perform()
-    sleep(2)
 
-    a = driver.find_elements(By.CSS_SELECTOR, '[data-qa="NavigationPanels-Accordion-AddButton__button"]')
-    action.click(a[0])
+    wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR, '.controls-padding_left-m.tw-w-full.msg-person-tile-new')))
+
+    contact = driver.find_element(By.CSS_SELECTOR, '.controls-padding_left-m.tw-w-full.msg-person-tile-new')
+    action.context_click(contact)
     action.perform()
-    sleep(2)
 
-    contact = driver.find_elements(By.CSS_SELECTOR, '.controls-TileView__item_roundBorder_topLeft_s .msg-addressee-selector__addressee')
-    contact[0].click()
-    sleep(2)
+    wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR, '.controls-Menu__content.controls-Menu__content_align_right')))
+    message = driver.find_element(By.CSS_SELECTOR, '.controls-Menu__content.controls-Menu__content_align_right')
 
-    text = driver.find_element(By.CSS_SELECTOR, ".textEditor_Viewer__Paragraph")
-    text.send_keys("message")
-    sleep(2)
+    message.click()
 
-    but = driver.find_element(By.CSS_SELECTOR, '[data-qa="msg-send-editor__send-button"]')
-    but.click()
-    sleep(2)
+    wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR, '.textEditor_Viewer__Paragraph')))
+    text_fild = driver.find_element(By.CSS_SELECTOR, ".textEditor_Viewer__Paragraph")
+    text_fild.send_keys("message")
 
-    txt = driver.find_element(By.CSS_SELECTOR, '.msg-entity-layout__message-content')
-    assert txt.is_displayed()
-    action.context_click(txt)
+    send = driver.find_element(By.CSS_SELECTOR, '[data-qa="msg-send-editor__send-button"]')
+    wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, '[data-qa="msg-send-editor__send-button"]')))
+    action.click(send)
     action.perform()
-    sleep(2)
 
-    dell = driver.find_elements(By.CSS_SELECTOR, ".controls-Menu__content-wrapper_width")[-1]
-    dell.click()
-    sleep(2)
+    wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, '.msg-entity-layout__message-content')))
+    text = driver.find_element(By.CSS_SELECTOR, '.msg-entity-layout__message-content')
+    assert text.is_displayed()
+    sleep(1)
+    action.context_click(text)
+    action.perform()
 
+    wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, '.controls-Menu__content-wrapper_width')))
+    delete = driver.find_elements(By.CSS_SELECTOR, ".controls-Menu__content-wrapper_width")[-1]
+    sleep(1)
+    delete.click()
+
+    wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR, '.controls-Button__text_viewMode-outlined')))
     yes = driver.find_elements(By.CSS_SELECTOR, ".controls-Button__text_viewMode-outlined")[0]
+    sleep(1)
     yes.click()
-    sleep(2)
 
+    wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR, '[data-qa="controls-ConfirmationTemplate__main"]')))
     check = driver.find_element(By.CSS_SELECTOR, '[data-qa="controls-ConfirmationTemplate__main"]')
     assert check.is_displayed()
+    sleep(1)
+
